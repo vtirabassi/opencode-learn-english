@@ -45,14 +45,29 @@ Open `http://localhost:3000`.
 - `npm run build` - production build
 - `npm run start` - run production server
 - `npm run lint` - lint codebase
+- Tests: no test runner configured yet
 
 ## Project Structure
 
-- `app/` - routes, pages, and API
-- `components/` - UI building blocks
-- `lib/` - data types, spacing repetition logic, helpers
-- `services/` - TTS and other external services
-- `store/` - local app state and hooks
+- `app/` - routes, pages, layouts, and API handlers
+  - `app/api/generate/route.ts` - OpenAI example generation endpoint
+  - `app/words/page.tsx` - word capture and list UI
+  - `app/practice/page.tsx` - daily practice flow
+  - `app/settings/page.tsx` - user preferences
+- `components/` - UI building blocks (header, buttons, selects)
+- `lib/` - domain logic (types, storage, spaced repetition, translations)
+- `store/` - app state and hooks (context, persistence sync)
+- `services/` - external integrations (TTS)
+- `public/` - static assets and PWA files (icons, `sw.js`)
+
+## Data Flow
+
+1. User adds a word in `app/words/page.tsx` and submits the form.
+2. `addWord` in `store/useAppStore.tsx` creates a `Word` + optional `Example`.
+3. The store persists `AppData` to LocalStorage via `lib/storage.ts`.
+4. `app/practice/page.tsx` reads `data.words`, filters due items with
+   `lib/spacedRepetition.ts`, and renders the current example.
+5. Rating an example updates its review state and persists the new schedule.
 
 ## Roadmap Ideas
 
