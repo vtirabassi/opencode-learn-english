@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/Button";
@@ -16,6 +16,7 @@ export default function PracticePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showTranslationOverride, setShowTranslationOverride] =
     useState<boolean | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const items = useMemo(
     () => getDuePracticeItems(data.words, 12),
@@ -36,6 +37,11 @@ export default function PracticePage() {
     setCurrentIndex(nextIndex);
   };
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsHydrated(true), 0);
+    return () => clearTimeout(timeout);
+  }, []);
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -47,7 +53,11 @@ export default function PracticePage() {
           <h2 className="text-3xl font-semibold text-slate-900">{t("practiceTitle")}</h2>
         </div>
 
-        {current ? (
+        {!isHydrated ? (
+          <section className="rounded-3xl border border-slate-200/70 bg-[color:var(--surface)] p-8 shadow-[0_30px_60px_-40px_rgba(30,30,30,0.4)]">
+            <p className="text-sm text-slate-600">{t("loadingData")}</p>
+          </section>
+        ) : current ? (
           <section className="grid gap-6 rounded-3xl border border-slate-200/70 bg-[color:var(--surface)] p-8 shadow-[0_30px_60px_-40px_rgba(30,30,30,0.4)]">
             <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
               <span>
