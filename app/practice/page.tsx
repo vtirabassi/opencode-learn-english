@@ -10,6 +10,15 @@ import { useAppStoreContext } from "@/store/AppStoreProvider";
 import { useTranslations } from "@/store/useTranslations";
 import { speak } from "@/services/tts";
 
+const formatRemainingTime = (totalSeconds: number) => {
+  const safeSeconds = Math.max(totalSeconds, 0);
+  const minutes = Math.floor(safeSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (safeSeconds % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
+};
+
 export default function PracticePage() {
   const { data, updateExampleReview } = useAppStoreContext();
   const { t, locale } = useTranslations();
@@ -17,6 +26,10 @@ export default function PracticePage() {
   const [showTranslationOverride, setShowTranslationOverride] =
     useState<boolean | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    data.settings.dailyGoalMinutes * 60,
+  );
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
 
   const items = useMemo(
     () => getDuePracticeItems(data.words, 12),
@@ -42,6 +55,14 @@ export default function PracticePage() {
     return () => clearTimeout(timeout);
   }, []);
 
+  useEffect(() => {
+    if (!isHydrated || !isTimerRunning || remainingSeconds <= 0) return;
+    const interval = window.setInterval(() => {
+      setRemainingSeconds((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [isHydrated, isTimerRunning, remainingSeconds]);
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -59,6 +80,39 @@ export default function PracticePage() {
           </section>
         ) : current ? (
           <section className="grid gap-6 rounded-3xl border border-slate-200/70 bg-[color:var(--surface)] p-8 shadow-[0_30px_60px_-40px_rgba(30,30,30,0.4)]">
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white px-5 py-4">
+              <span className="text-sm font-medium text-slate-600">{t("practiceTimer")}</span>
+              <div className="ml-auto flex flex-wrap items-center gap-3">
+                <Button
+                  className="border border-red-300 bg-red-100 text-slate-900 hover:border-red-400 hover:bg-red-200 hover:text-slate-900"
+                  variant="secondary"
+                  disabled={!isTimerRunning || remainingSeconds <= 0}
+                  onClick={() => setIsTimerRunning(false)}
+                >
+                  {t("practiceTimerStop")}
+                </Button>
+                <Button
+                  className="border-green-300 bg-green-100 text-slate-900 hover:border-green-400 hover:bg-green-200 hover:text-slate-900"
+                  variant="secondary"
+                  disabled={isTimerRunning || remainingSeconds <= 0}
+                  onClick={() => setIsTimerRunning(true)}
+                >
+                  {t("practiceTimerResume")}
+                </Button>
+                <div className="text-right">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+                    {remainingSeconds === 0
+                      ? t("practiceTimeUp")
+                      : isTimerRunning
+                        ? t("practiceTimeLeft")
+                        : t("practiceTimerPaused")}
+                  </p>
+                  <p className="text-2xl font-semibold text-slate-900">
+                    {formatRemainingTime(remainingSeconds)}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
               <span>
                  {t("practiceProgress")}: {activeIndex + 1}/{items.length}
