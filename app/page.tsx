@@ -31,6 +31,9 @@ export default function Home() {
               <Link href="/words">
                 <Button variant="secondary">{t("ctaAddWord")}</Button>
               </Link>
+              <Link href="/notes">
+                <Button variant="ghost">{t("navNotes")}</Button>
+              </Link>
             </div>
           </div>
           <div className="rounded-3xl border border-amber-200/80 bg-white/70 p-8 shadow-[0_20px_60px_-30px_rgba(46,34,18,0.45)]">

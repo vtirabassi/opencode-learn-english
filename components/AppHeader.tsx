@@ -22,6 +22,9 @@ export const AppHeader = () => {
         <Link className="hover:text-slate-900" href="/words">
           {t("navWords")}
         </Link>
+        <Link className="hover:text-slate-900" href="/notes">
+          {t("navNotes")}
+        </Link>
         <Link className="hover:text-slate-900" href="/settings">
           {t("navSettings")}
         </Link>

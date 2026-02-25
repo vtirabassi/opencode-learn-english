@@ -16,6 +16,7 @@ import type {
   Locale,
   ReviewRating,
   Settings,
+  StudyNote,
   Word,
 } from "@/lib/types";
 
@@ -169,6 +170,18 @@ export const useAppStore = () => {
     [],
   );
 
+  const updateStudyNote = useCallback((next: Pick<StudyNote, "title" | "markdown">) => {
+    setData((prev) => ({
+      ...prev,
+      note: {
+        ...prev.note,
+        title: next.title,
+        markdown: next.markdown,
+        updatedAt: new Date().toISOString(),
+      },
+    }));
+  }, []);
+
   const value = useMemo(
     () => ({
       data,
@@ -179,6 +192,7 @@ export const useAppStore = () => {
       addWord,
       addExampleToWord,
       updateExampleReview,
+      updateStudyNote,
       reset: () => setData({ ...defaultAppData, settings: defaultSettings }),
     }),
     [
@@ -190,6 +204,7 @@ export const useAppStore = () => {
       addWord,
       addExampleToWord,
       updateExampleReview,
+      updateStudyNote,
     ],
   );
 

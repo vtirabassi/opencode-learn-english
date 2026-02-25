@@ -41,7 +41,14 @@ export type Settings = {
   showTranslationsByDefault: boolean;
 };
 
+export type StudyNote = {
+  title: string;
+  markdown: string;
+  updatedAt: string;
+};
+
 export type AppData = {
   words: Word[];
   settings: Settings;
+  note: StudyNote;
 };

@@ -1,4 +1,4 @@
-import type { AppData, Settings } from "@/lib/types";
+import type { AppData, Settings, StudyNote } from "@/lib/types";
 
 const STORAGE_KEY = "opencode.learnEnglish.v1";
 
@@ -8,9 +8,18 @@ export const defaultSettings: Settings = {
   showTranslationsByDefault: false,
 };
 
+const nowIso = () => new Date().toISOString();
+
+export const defaultStudyNote: StudyNote = {
+  title: "Study Journal",
+  markdown: "",
+  updatedAt: nowIso(),
+};
+
 export const defaultAppData: AppData = {
   words: [],
   settings: defaultSettings,
+  note: defaultStudyNote,
 };
 
 const isBrowser = typeof window !== "undefined";
@@ -21,11 +30,17 @@ export const loadAppData = (): AppData => {
   if (!raw) return defaultAppData;
   try {
     const parsed = JSON.parse(raw) as AppData;
+    const parsedNote = parsed.note ?? defaultStudyNote;
     return {
       words: parsed.words ?? [],
       settings: {
         ...defaultSettings,
         ...(parsed.settings ?? {}),
+      },
+      note: {
+        title: parsedNote.title ?? defaultStudyNote.title,
+        markdown: parsedNote.markdown ?? defaultStudyNote.markdown,
+        updatedAt: parsedNote.updatedAt ?? nowIso(),
       },
     };
   } catch {
