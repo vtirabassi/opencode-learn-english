@@ -30,6 +30,8 @@ export default function PracticePage() {
     data.settings.dailyGoalMinutes * 60,
   );
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [sessionTotal, setSessionTotal] = useState(0);
 
   const items = useMemo(
     () => getDuePracticeItems(data.words, 12),
@@ -43,6 +45,8 @@ export default function PracticePage() {
 
   const handleRating = (rating: "known" | "almost" | "not") => {
     if (!current) return;
+    setSessionTotal((prev) => (prev > 0 ? prev : items.length));
+    setAnsweredCount((prev) => prev + 1);
     updateExampleReview(current.wordId, current.example.id, rating);
     const nextItems = items.filter((item) => item.example.id !== current.example.id);
     const nextIndex = Math.min(activeIndex, Math.max(nextItems.length - 1, 0));
@@ -62,6 +66,11 @@ export default function PracticePage() {
     }, 1000);
     return () => window.clearInterval(interval);
   }, [isHydrated, isTimerRunning, remainingSeconds]);
+
+  const progressTotal = sessionTotal || items.length;
+  const progressCurrent = current
+    ? Math.min(answeredCount + 1, progressTotal)
+    : Math.min(answeredCount, progressTotal);
 
   return (
     <div className="min-h-screen">
@@ -115,7 +124,7 @@ export default function PracticePage() {
             </div>
             <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
               <span>
-                 {t("practiceProgress")}: {activeIndex + 1}/{items.length}
+                {t("practiceProgress")}: {progressCurrent}/{progressTotal}
               </span>
               <span>
                 {t("practiceNextReview")}: {" "}
