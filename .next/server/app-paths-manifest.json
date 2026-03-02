@@ -1,0 +1,12 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/generate/route": "app/api/generate/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/notes/page": "app/notes/page.js",
+  "/page": "app/page.js",
+  "/practice/page": "app/practice/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/words/page": "app/words/page.js"
+}

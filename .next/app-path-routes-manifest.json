@@ -1,0 +1,12 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/generate/route": "/api/generate",
+  "/favicon.ico/route": "/favicon.ico",
+  "/manifest.webmanifest/route": "/manifest.webmanifest",
+  "/notes/page": "/notes",
+  "/page": "/",
+  "/practice/page": "/practice",
+  "/settings/page": "/settings",
+  "/words/page": "/words"
+}
