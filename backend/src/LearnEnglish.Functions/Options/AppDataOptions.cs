@@ -1,4 +1,4 @@
-namespace LearnEnglish.Api.Options;
+namespace LearnEnglish.Functions.Options;
 
 public sealed class AppDataOptions
 {

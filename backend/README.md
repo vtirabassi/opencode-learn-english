@@ -1,24 +1,26 @@
 # Learn English Backend
 
-Target framework: `.NET 8` (`net8.0`).
+Target framework: `.NET 8` (`net8.0`) with Azure Functions (isolated worker).
 
 ## Projects
 
-- `src/LearnEnglish.Api` - ASP.NET Core API (`/api/v1/examples/generate`)
+- `src/LearnEnglish.Functions` - Azure Functions HTTP entrypoints
 - `src/LearnEnglish.Application` - business use cases and validation
 - `src/LearnEnglish.Domain` - core domain models
-- `src/LearnEnglish.Infrastructure` - OpenAI integration
+- `src/LearnEnglish.Infrastructure` - OpenAI and Blob integration
 
 ## Run
 
 ```bash
-cd src/LearnEnglish.Api
-dotnet run --urls http://localhost:5050
+cd backend/src/LearnEnglish.Functions
+dotnet run
 ```
+
+Local Functions HTTP base URL is typically `http://localhost:7071`.
 
 ## Configuration
 
-Set OpenAI key and Blob config in `src/LearnEnglish.Api/appsettings.Development.json`:
+For local development, set values in `src/LearnEnglish.Functions/appsettings.Development.json`:
 
 ```json
 {
@@ -35,8 +37,16 @@ Set OpenAI key and Blob config in `src/LearnEnglish.Api/appsettings.Development.
 }
 ```
 
+For Azure, configure App Settings with `__` separators, for example:
+- `OpenAI__ApiKey`
+- `OpenAI__Model`
+- `AzureBlob__ConnectionString`
+- `AzureBlob__ContainerName`
+- `AppData__DefaultUserId`
+
 ## App Data Endpoints
 
+- `POST /api/v1/examples/generate`
 - `GET/PUT /api/v1/settings`
 - `GET/PUT /api/v1/words`
 - `GET/PUT /api/v1/notes`

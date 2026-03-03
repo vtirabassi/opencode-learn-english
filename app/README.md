@@ -28,7 +28,7 @@ npm install
 Create a `.env.local` file for the frontend:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5050
+NEXT_PUBLIC_API_BASE_URL=http://localhost:7071
 ```
 
 Run the frontend:
@@ -43,12 +43,12 @@ Open `http://localhost:3000`.
 
 Backend API lives in `../backend/src/` with layered responsibilities:
 
-- `LearnEnglish.Api` - HTTP, controllers, middleware, CORS, composition root
+- `LearnEnglish.Functions` - Azure Functions HTTP entrypoints, DI composition root
 - `LearnEnglish.Application` - use cases, validation, prompt orchestration
 - `LearnEnglish.Domain` - domain models
 - `LearnEnglish.Infrastructure` - external integrations (OpenAI client)
 
-Create `../backend/src/LearnEnglish.Api/appsettings.Development.json` with your key:
+Create `../backend/src/LearnEnglish.Functions/appsettings.Development.json` with your key:
 
 ```json
 {
@@ -61,8 +61,8 @@ Create `../backend/src/LearnEnglish.Api/appsettings.Development.json` with your 
 Run the backend:
 
 ```bash
-cd ../backend/src/LearnEnglish.Api
-dotnet run --urls http://localhost:5050
+cd ../backend/src/LearnEnglish.Functions
+dotnet run
 ```
 
 ## Scripts
@@ -99,7 +99,7 @@ dotnet run --urls http://localhost:5050
 - Auth + cloud sync for multi-device learning
 - Gamification: streaks, levels, and achievements
 - Personalized review schedules
-- Azure deployment (App Service + Key Vault + Cosmos DB)
+- Azure deployment (Static Web Apps + Azure Functions)
 
 ## Notes
 

@@ -10,7 +10,7 @@ Repo Quick Facts
 - Styling: Tailwind CSS (className strings)
 - State: local store hooks in `src/store/`
 - Data: backend API + in-memory state
-- API: dedicated .NET backend in `../backend/src/LearnEnglish.Api`
+- API: dedicated .NET backend in `../backend/src/LearnEnglish.Functions`
 
 Setup
 - Install: `npm install`

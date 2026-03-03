@@ -1,4 +1,4 @@
-const DEFAULT_DEV_API_BASE_URL = "http://localhost:5050";
+const DEFAULT_DEV_API_BASE_URL = "http://localhost:7071";
 
 const normalizeBaseUrl = (baseUrl?: string) => {
   if (!baseUrl) return "";

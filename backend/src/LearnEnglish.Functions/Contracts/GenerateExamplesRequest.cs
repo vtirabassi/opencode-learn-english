@@ -1,4 +1,4 @@
-namespace LearnEnglish.Api.Contracts;
+namespace LearnEnglish.Functions.Contracts;
 
 public sealed record GenerateExamplesRequest(
     string Word,
