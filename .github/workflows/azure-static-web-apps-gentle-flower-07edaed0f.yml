@@ -32,9 +32,31 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "./app" # App source code path
           app_build_command: "npm run build"
-          api_location: "./backend/src/LearnEnglish.Functions" # Api source code path - optional
+          api_location: "" # Next.js SSR app in SWA must not use separate api_location
           output_location: ".next" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+
+  deploy_backend_job:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Deploy Backend Functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish Functions
+        run: dotnet publish backend/src/LearnEnglish.Functions/LearnEnglish.Functions.csproj --configuration Release --output backend/publish
+
+      - name: Deploy Backend to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME_BACKEND }}
+          package: backend/publish
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_BACKEND }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
