@@ -1,12 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { defaultAppData, defaultSettings } from "@/lib/storage";
+import { mergeWordsWithReviews, splitWordsAndReviews } from "@/lib/userDataMapper";
 import {
-  defaultAppData,
-  defaultSettings,
-  loadAppData,
-  saveAppData,
-} from "@/lib/storage";
+  getNote,
+  getReviews,
+  getSettings,
+  getWords,
+  saveNote,
+  saveReviews,
+  saveSettings,
+  saveWords,
+} from "@/services/userDataApi";
 import { createInitialReview, updateReviewState } from "@/lib/spacedRepetition";
 import type {
   AppData,
@@ -52,26 +58,68 @@ const buildExample = (input: NewExampleInput): Example => {
 };
 
 export const useAppStore = () => {
-  const [data, setData] = useState<AppData>(() =>
-    typeof window === "undefined" ? defaultAppData : loadAppData(),
-  );
-  const [ready] = useState(() => typeof window !== "undefined");
+  const [data, setData] = useState<AppData>(defaultAppData);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadRemoteData = async () => {
+      try {
+        const [settings, words, note, reviews] = await Promise.all([
+          getSettings(),
+          getWords(),
+          getNote(),
+          getReviews(),
+        ]);
+
+        if (!mounted) return;
+
+        setData({
+          settings: {
+            ...defaultSettings,
+            ...settings,
+          },
+          words: mergeWordsWithReviews(words, reviews),
+          note,
+        });
+      } catch (error) {
+        if (mounted) {
+          console.error("Failed to load remote user data.", error);
+          setData(defaultAppData);
+        }
+      } finally {
+        if (mounted) {
+          setReady(true);
+        }
+      }
+    };
+
+    loadRemoteData();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!ready) return;
-    saveAppData(data);
-  }, [data, ready]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handler = (event: StorageEvent) => {
-      if (event.key === "opencode.learnEnglish.v1") {
-        setData(loadAppData());
+    const syncRemoteData = async () => {
+      try {
+        const split = splitWordsAndReviews(data.words);
+        await Promise.all([
+          saveSettings(data.settings),
+          saveWords(split.words),
+          saveNote(data.note),
+          saveReviews(split.reviews),
+        ]);
+      } catch (error) {
+        console.error("Failed to persist remote user data.", error);
       }
     };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
+
+    void syncRemoteData();
+  }, [data, ready]);
 
   const setSettings = useCallback((next: Settings) => {
     setData((prev) => ({ ...prev, settings: next }));

@@ -1,4 +1,5 @@
 using LearnEnglish.Api.Extensions;
+using LearnEnglish.Api.Options;
 using LearnEnglish.Application.Extensions;
 using LearnEnglish.Infrastructure.Extensions;
 
@@ -6,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.Configure<AppDataOptions>(
+    builder.Configuration.GetSection(AppDataOptions.SectionName)
+);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

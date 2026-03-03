@@ -1,3 +1,4 @@
+import { buildApiUrl } from "@/lib/apiBaseUrl";
 import type { ExampleTone } from "@/lib/types";
 
 type GenerateExamplesInput = {
@@ -17,20 +18,8 @@ type GenerateExamplesResponse = {
   examples?: GeneratedExample[];
 };
 
-const normalizeBaseUrl = (baseUrl?: string) => {
-  if (!baseUrl) return "";
-  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-};
-
-const buildGenerateEndpoint = () => {
-  const baseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  return baseUrl
-    ? `${baseUrl}/api/v1/examples/generate`
-    : "/api/v1/examples/generate";
-};
-
 export const generateExamples = async (input: GenerateExamplesInput) => {
-  const response = await fetch(buildGenerateEndpoint(), {
+  const response = await fetch(buildApiUrl("/api/v1/examples/generate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

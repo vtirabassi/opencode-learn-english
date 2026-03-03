@@ -9,7 +9,7 @@ Repo Quick Facts
 - Language: TypeScript + React
 - Styling: Tailwind CSS (className strings)
 - State: local store hooks in `src/store/`
-- Data: LocalStorage + in-memory state
+- Data: backend API + in-memory state
 - API: dedicated .NET backend in `../backend/src/LearnEnglish.Api`
 
 Setup
@@ -72,7 +72,7 @@ React/Next.js Patterns
 
 State & Storage
 - State hooks live in `src/store/`.
-- Storage helpers live in `src/lib/storage.ts`.
+- API clients live in `src/services/`.
 - Update types in `src/lib/types.ts` when data model changes.
 
 Error Handling

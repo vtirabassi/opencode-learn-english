@@ -14,7 +14,7 @@ Progressive Web App (PWA) for contextual English vocabulary practice with spaced
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS
-- LocalStorage persistence
+- Backend API persistence
 - OpenAI API via dedicated .NET backend
 
 ## Getting Started
@@ -103,4 +103,4 @@ dotnet run --urls http://localhost:5050
 
 ## Notes
 
-All data is stored locally in the browser for the MVP. The preferred AI generation flow now runs via the .NET backend endpoint `/api/v1/examples/generate`.
+All app data persistence is handled by the backend endpoints (`/api/v1/settings`, `/api/v1/words`, `/api/v1/notes`, `/api/v1/reviews`) backed by Azure Blob Storage.

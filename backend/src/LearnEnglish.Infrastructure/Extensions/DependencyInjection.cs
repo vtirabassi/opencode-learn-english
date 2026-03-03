@@ -1,6 +1,8 @@
 using LearnEnglish.Application.Abstractions;
+using LearnEnglish.Application.UserData;
 using LearnEnglish.Infrastructure.OpenAi;
 using LearnEnglish.Infrastructure.Options;
+using LearnEnglish.Infrastructure.UserData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +16,7 @@ public static class DependencyInjection
     )
     {
         services.Configure<OpenAiOptions>(configuration.GetSection(OpenAiOptions.SectionName));
+        services.Configure<AzureBlobOptions>(configuration.GetSection(AzureBlobOptions.SectionName));
 
         services.AddHttpClient<IOpenAiClient, OpenAiClient>((serviceProvider, client) =>
         {
@@ -24,6 +27,7 @@ public static class DependencyInjection
             var baseUrl = options.BaseUrl.TrimEnd('/');
             client.BaseAddress = new Uri($"{baseUrl}/");
         });
+        services.AddScoped<IUserDataStore, AzureBlobUserDataStore>();
 
         return services;
     }
