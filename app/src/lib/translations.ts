@@ -113,6 +113,9 @@ export const translations = {
     formRequired: "This field is required.",
     exampleRequired: "Please add an example sentence before saving.",
     wordSaved: "Word saved.",
+    editWordButton: "Edit",
+    editWordSave: "Save",
+    editWordCancel: "Cancel",
   },
   "pt-BR": {
     appName: "OpenCode Learn English",
@@ -226,6 +229,9 @@ export const translations = {
     formRequired: "Este campo é obrigatório.",
     exampleRequired: "Adicione uma frase de exemplo antes de salvar.",
     wordSaved: "Palavra salva.",
+    editWordButton: "Editar",
+    editWordSave: "Salvar",
+    editWordCancel: "Cancelar",
   },
 } as const;
 
