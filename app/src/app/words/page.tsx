@@ -192,12 +192,22 @@ export default function WordsPage() {
             </label>
             <label className="text-sm font-semibold text-slate-700">
               {t("partOfSpeechField")}
-              <input
+              <select
                 value={partOfSpeech}
                 onChange={(event) => setPartOfSpeech(event.target.value)}
                 className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                placeholder="verb, noun"
-              />
+              >
+                <option value="">-</option>
+                <option value="noun">{t("posNoun")}</option>
+                <option value="verb">{t("posVerb")}</option>
+                <option value="adjective">{t("posAdjective")}</option>
+                <option value="adverb">{t("posAdverb")}</option>
+                <option value="pronoun">{t("posPronoun")}</option>
+                <option value="preposition">{t("posPreposition")}</option>
+                <option value="conjunction">{t("posConjunction")}</option>
+                <option value="interjection">{t("posInterjection")}</option>
+                <option value="phrase">{t("posPhrase")}</option>
+              </select>
             </label>
             <label className="text-sm font-semibold text-slate-700">
               {t("difficultyField")}
