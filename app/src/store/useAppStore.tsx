@@ -218,6 +218,38 @@ export const useAppStore = () => {
     [],
   );
 
+  const updateWord = useCallback(
+    (
+      wordId: string,
+      changes: Partial<Pick<Word, "term" | "translation" | "partOfSpeech" | "difficulty">>,
+      exampleChanges?: { id: string; sentence: string; translation?: string }[],
+    ) => {
+      setData((prev) => ({
+        ...prev,
+        words: prev.words.map((word) => {
+          if (word.id !== wordId) return word;
+          let updated = { ...word, ...changes };
+          if (exampleChanges) {
+            updated = {
+              ...updated,
+              examples: updated.examples.map((ex) => {
+                const change = exampleChanges.find((c) => c.id === ex.id);
+                if (!change) return ex;
+                return {
+                  ...ex,
+                  sentence: change.sentence,
+                  translation: change.translation,
+                };
+              }),
+            };
+          }
+          return updated;
+        }),
+      }));
+    },
+    [],
+  );
+
   const updateStudyNote = useCallback((next: Pick<StudyNote, "title" | "markdown">) => {
     setData((prev) => ({
       ...prev,
@@ -239,6 +271,7 @@ export const useAppStore = () => {
       setShowTranslationsByDefault,
       addWord,
       addExampleToWord,
+      updateWord,
       updateExampleReview,
       updateStudyNote,
       reset: () => setData({ ...defaultAppData, settings: defaultSettings }),
@@ -251,6 +284,7 @@ export const useAppStore = () => {
       setShowTranslationsByDefault,
       addWord,
       addExampleToWord,
+      updateWord,
       updateExampleReview,
       updateStudyNote,
     ],

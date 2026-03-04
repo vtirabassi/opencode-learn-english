@@ -16,7 +16,7 @@ type AiExample = {
 };
 
 export default function WordsPage() {
-  const { data, addWord } = useAppStoreContext();
+  const { data, addWord, updateWord } = useAppStoreContext();
   const { t } = useTranslations();
   const [mode, setMode] = useState<"manual" | "ai">("manual");
   const [term, setTerm] = useState("");
@@ -34,12 +34,68 @@ export default function WordsPage() {
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [editingWordId, setEditingWordId] = useState<string | null>(null);
+  const [editTerm, setEditTerm] = useState("");
+  const [editTranslation, setEditTranslation] = useState("");
+  const [editPartOfSpeech, setEditPartOfSpeech] = useState("");
+  const [editDifficulty, setEditDifficulty] = useState("");
+  const [editExamples, setEditExamples] = useState<
+    { id: string; sentence: string; translation: string }[]
+  >([]);
 
   const difficultyLabel = (value?: string) => {
     if (value === "easy") return t("difficultyEasy");
     if (value === "medium") return t("difficultyMedium");
     if (value === "hard") return t("difficultyHard");
     return value ?? "";
+  };
+
+  const startEditing = (word: (typeof data.words)[number]) => {
+    setEditingWordId(word.id);
+    setEditTerm(word.term);
+    setEditTranslation(word.translation ?? "");
+    setEditPartOfSpeech(word.partOfSpeech ?? "");
+    setEditDifficulty(word.difficulty ?? "");
+    setEditExamples(
+      word.examples.map((ex) => ({
+        id: ex.id,
+        sentence: ex.sentence,
+        translation: ex.translation ?? "",
+      })),
+    );
+  };
+
+  const cancelEditing = () => {
+    setEditingWordId(null);
+  };
+
+  const saveEditing = () => {
+    if (!editingWordId || !editTerm.trim()) return;
+    updateWord(
+      editingWordId,
+      {
+        term: editTerm.trim(),
+        translation: editTranslation.trim() || undefined,
+        partOfSpeech: editPartOfSpeech.trim() || undefined,
+        difficulty: editDifficulty || undefined,
+      },
+      editExamples.map((ex) => ({
+        id: ex.id,
+        sentence: ex.sentence.trim(),
+        translation: ex.translation.trim() || undefined,
+      })),
+    );
+    setEditingWordId(null);
+  };
+
+  const updateEditExample = (
+    exampleId: string,
+    field: "sentence" | "translation",
+    value: string,
+  ) => {
+    setEditExamples((prev) =>
+      prev.map((ex) => (ex.id === exampleId ? { ...ex, [field]: value } : ex)),
+    );
   };
 
   const handleModeChange = (nextMode: "manual" | "ai") => {
@@ -334,20 +390,100 @@ export default function WordsPage() {
                   key={word.id}
                   className="rounded-3xl border border-slate-200/70 bg-[color:var(--surface)] p-6 shadow-[0_20px_50px_-40px_rgba(30,30,30,0.4)]"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h4 className="text-xl font-semibold text-slate-900">{word.term}</h4>
-                      <p className="text-sm text-slate-500">
-                        {word.translation || ""} {word.partOfSpeech ? `• ${word.partOfSpeech}` : ""}
-                      </p>
+                  {editingWordId === word.id ? (
+                    <div className="grid gap-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <label className="text-sm font-semibold text-slate-700">
+                          {t("wordField")}
+                          <input
+                            value={editTerm}
+                            onChange={(e) => setEditTerm(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                          />
+                        </label>
+                        <label className="text-sm font-semibold text-slate-700">
+                          {t("translationField")}
+                          <input
+                            value={editTranslation}
+                            onChange={(e) => setEditTranslation(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                          />
+                        </label>
+                        <label className="text-sm font-semibold text-slate-700">
+                          {t("partOfSpeechField")}
+                          <input
+                            value={editPartOfSpeech}
+                            onChange={(e) => setEditPartOfSpeech(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                          />
+                        </label>
+                        <label className="text-sm font-semibold text-slate-700">
+                          {t("difficultyField")}
+                          <select
+                            value={editDifficulty}
+                            onChange={(e) => setEditDifficulty(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                          >
+                            <option value="">-</option>
+                            <option value="easy">{t("difficultyEasy")}</option>
+                            <option value="medium">{t("difficultyMedium")}</option>
+                            <option value="hard">{t("difficultyHard")}</option>
+                          </select>
+                        </label>
+                      </div>
                     </div>
-                    {word.difficulty && (
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                        {difficultyLabel(word.difficulty)}
-                      </span>
-                    )}
-                  </div>
-                  {word.examples.length > 0 ? (
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h4 className="text-xl font-semibold text-slate-900">{word.term}</h4>
+                        <p className="text-sm text-slate-500">
+                          {word.translation || ""} {word.partOfSpeech ? `• ${word.partOfSpeech}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {word.difficulty && (
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                            {difficultyLabel(word.difficulty)}
+                          </span>
+                        )}
+                        <Button variant="ghost" onClick={() => startEditing(word)}>
+                          {t("editWordButton")}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {editingWordId === word.id ? (
+                    editExamples.length > 0 && (
+                      <div className="mt-4 grid gap-3">
+                        {editExamples.map((example) => (
+                          <div key={example.id} className="rounded-2xl border border-slate-100 bg-white p-4 grid gap-3">
+                            <label className="text-sm font-semibold text-slate-700">
+                              {t("exampleField")}
+                              <textarea
+                                value={example.sentence}
+                                onChange={(e) =>
+                                  updateEditExample(example.id, "sentence", e.target.value)
+                                }
+                                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                                rows={2}
+                              />
+                            </label>
+                            <label className="text-sm font-semibold text-slate-700">
+                              {t("exampleTranslationField")}
+                              <textarea
+                                value={example.translation}
+                                onChange={(e) =>
+                                  updateEditExample(example.id, "translation", e.target.value)
+                                }
+                                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                                rows={2}
+                              />
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ) : word.examples.length > 0 ? (
                     <div className="mt-4 grid gap-3">
                       {word.examples.map((example) => (
                         <div key={example.id} className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm text-slate-600">
@@ -360,6 +496,16 @@ export default function WordsPage() {
                     </div>
                   ) : (
                     <p className="mt-3 text-sm text-slate-400">{t("emptyWords")}</p>
+                  )}
+                  {editingWordId === word.id && (
+                    <div className="mt-4 flex gap-3">
+                      <Button onClick={saveEditing} disabled={!editTerm.trim()}>
+                        {t("editWordSave")}
+                      </Button>
+                      <Button variant="secondary" onClick={cancelEditing}>
+                        {t("editWordCancel")}
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}
