@@ -5,6 +5,7 @@ It covers build/lint/test commands and the code style conventions used in this r
 
 ## Repository Layout
 
+- `README.md` - root guide for full-stack setup and workflows.
 - `app/` - Next.js 16 + TypeScript frontend (App Router).
 - `backend/` - .NET 8 Azure Functions backend (isolated worker).
 - `.github/workflows/` - CI/CD for frontend and backend deploys.
@@ -165,3 +166,4 @@ Result:
 - Match existing style in each subproject (frontend vs backend).
 - If you add a test framework, update this file with exact test commands, including single-test invocation.
 - If you add rule files for Cursor/Copilot, update this file to summarize the new constraints.
+- Keep `README.md`, `app/README.md`, and `backend/README.md` aligned with any setup, command, endpoint, or deployment changes.
