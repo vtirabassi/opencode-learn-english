@@ -4,11 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { defaultAppData, defaultSettings } from "@/lib/storage";
 import { mergeWordsWithReviews, splitWordsAndReviews } from "@/lib/userDataMapper";
 import {
-  getNote,
+  getNotes,
   getReviews,
   getSettings,
   getWords,
-  saveNote,
   saveReviews,
   saveSettings,
   saveWords,
@@ -22,7 +21,6 @@ import type {
   Locale,
   ReviewRating,
   Settings,
-  StudyNote,
   Word,
 } from "@/lib/types";
 
@@ -40,7 +38,7 @@ type NewExampleInput = {
   source: ExampleSource;
 };
 
-const createId = () =>
+export const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2, 11);
@@ -65,10 +63,10 @@ export const useAppStore = () => {
     let mounted = true;
     const loadRemoteData = async () => {
       try {
-        const [settings, words, note, reviews] = await Promise.all([
+        const [settings, words, notes, reviews] = await Promise.all([
           getSettings(),
           getWords(),
-          getNote(),
+          getNotes(),
           getReviews(),
         ]);
 
@@ -80,7 +78,7 @@ export const useAppStore = () => {
             ...settings,
           },
           words: mergeWordsWithReviews(words, reviews),
-          note,
+          notes: Array.isArray(notes) ? notes : [],
         });
       } catch (error) {
         if (mounted) {
@@ -110,7 +108,6 @@ export const useAppStore = () => {
         await Promise.all([
           saveSettings(data.settings),
           saveWords(split.words),
-          saveNote(data.note),
           saveReviews(split.reviews),
         ]);
       } catch (error) {
@@ -250,16 +247,8 @@ export const useAppStore = () => {
     [],
   );
 
-  const updateStudyNote = useCallback((next: Pick<StudyNote, "title" | "markdown">) => {
-    setData((prev) => ({
-      ...prev,
-      note: {
-        ...prev.note,
-        title: next.title,
-        markdown: next.markdown,
-        updatedAt: new Date().toISOString(),
-      },
-    }));
+  const setNotes = useCallback((notes: AppData["notes"]) => {
+    setData((prev) => ({ ...prev, notes }));
   }, []);
 
   const value = useMemo(
@@ -273,7 +262,7 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
+      setNotes,
       reset: () => setData({ ...defaultAppData, settings: defaultSettings }),
     }),
     [
@@ -286,7 +275,7 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
+      setNotes,
     ],
   );
 

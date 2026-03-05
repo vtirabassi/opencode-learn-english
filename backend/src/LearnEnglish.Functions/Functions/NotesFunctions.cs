@@ -24,11 +24,11 @@ public sealed class NotesFunctions(
     {
         try
         {
-            var note = await userDataService.GetNoteAsync(
+            var notes = await userDataService.GetNotesAsync(
                 FunctionHttp.ResolveUserId(appDataOptions),
                 cancellationToken
             );
-            return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, note, cancellationToken);
+            return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, notes, cancellationToken);
         }
         catch (Exception exception)
         {
@@ -50,8 +50,8 @@ public sealed class NotesFunctions(
     {
         try
         {
-            var payload = await FunctionHttp.ReadJsonAsync<StudyNoteData>(request, cancellationToken);
-            await userDataService.SaveNoteAsync(
+            var payload = await FunctionHttp.ReadJsonAsync<List<StudyNoteData>>(request, cancellationToken);
+            await userDataService.SaveNotesAsync(
                 FunctionHttp.ResolveUserId(appDataOptions),
                 payload,
                 cancellationToken

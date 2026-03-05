@@ -42,6 +42,7 @@ export type Settings = {
 };
 
 export type StudyNote = {
+  id: string;
   title: string;
   markdown: string;
   updatedAt: string;
@@ -50,5 +51,5 @@ export type StudyNote = {
 export type AppData = {
   words: Word[];
   settings: Settings;
-  note: StudyNote;
+  notes: StudyNote[];
 };

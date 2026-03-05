@@ -36,8 +36,8 @@ public interface IUserDataService
         CancellationToken cancellationToken
     );
 
-    Task<StudyNoteData> GetNoteAsync(string userId, CancellationToken cancellationToken);
-    Task SaveNoteAsync(string userId, StudyNoteData note, CancellationToken cancellationToken);
+    Task<IReadOnlyList<StudyNoteData>> GetNotesAsync(string userId, CancellationToken cancellationToken);
+    Task SaveNotesAsync(string userId, IReadOnlyList<StudyNoteData> notes, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ReviewItemData>> GetReviewsAsync(string userId, CancellationToken cancellationToken);
     Task SaveReviewsAsync(
