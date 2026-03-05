@@ -50,30 +50,45 @@ internal sealed class UserDataService(IUserDataStore store) : IUserDataService
         return store.WriteAsync(userId, UserDataSection.Words, words, cancellationToken);
     }
 
-    public Task<StudyNoteData> GetNoteAsync(string userId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<StudyNoteData>> GetNotesAsync(string userId, CancellationToken cancellationToken)
     {
-        var defaultNote = new StudyNoteData("Study Journal", string.Empty, DateTime.UtcNow.ToString("O"));
-        return GetOrDefaultAsync(userId, UserDataSection.Notes, defaultNote, cancellationToken);
-    }
-
-    public Task SaveNoteAsync(string userId, StudyNoteData note, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(note.Title))
+        var notes = await store.ReadAsync<List<StudyNoteData>>(userId, UserDataSection.Notes, cancellationToken);
+        if (notes is not null)
         {
-            throw new ArgumentException("Note title is required.", nameof(note));
+            return notes;
         }
 
-        var normalized = note with
+        // Migration: try reading legacy single-note format
+        var legacy = await store.ReadAsync<LegacyStudyNoteData>(userId, UserDataSection.Notes, cancellationToken);
+        if (legacy is not null)
         {
-            Title = note.Title.Trim(),
+            var migrated = new List<StudyNoteData>
+            {
+                new(Guid.NewGuid().ToString(), legacy.Title, legacy.Markdown, legacy.UpdatedAt)
+            };
+            await store.WriteAsync(userId, UserDataSection.Notes, migrated, cancellationToken);
+            return migrated;
+        }
+
+        return [];
+    }
+
+    public Task SaveNotesAsync(string userId, IReadOnlyList<StudyNoteData> notes, CancellationToken cancellationToken)
+    {
+        var normalized = notes.Select(note => note with
+        {
+            Id = string.IsNullOrWhiteSpace(note.Id) ? Guid.NewGuid().ToString() : note.Id,
+            Title = note.Title?.Trim() ?? string.Empty,
             Markdown = note.Markdown ?? string.Empty,
             UpdatedAt = string.IsNullOrWhiteSpace(note.UpdatedAt)
                 ? DateTime.UtcNow.ToString("O")
                 : note.UpdatedAt,
-        };
+        }).ToList();
 
         return store.WriteAsync(userId, UserDataSection.Notes, normalized, cancellationToken);
     }
+
+    private sealed record LegacyStudyNoteData(string Title, string Markdown, string UpdatedAt);
 
     public async Task<IReadOnlyList<ReviewItemData>> GetReviewsAsync(
         string userId,

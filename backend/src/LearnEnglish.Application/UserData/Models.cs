@@ -33,6 +33,7 @@ public sealed record WordData(
 );
 
 public sealed record StudyNoteData(
+    string Id,
     string Title,
     string Markdown,
     string UpdatedAt

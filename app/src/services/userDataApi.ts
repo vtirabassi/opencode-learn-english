@@ -39,8 +39,8 @@ export const saveSettings = (settings: RemoteSettings) => putJson("/api/v1/setti
 export const getWords = () => getJson<RemoteWord[]>("/api/v1/words");
 export const saveWords = (words: RemoteWord[]) => putJson("/api/v1/words", words);
 
-export const getNote = () => getJson<RemoteNote>("/api/v1/notes");
-export const saveNote = (note: RemoteNote) => putJson("/api/v1/notes", note);
+export const getNotes = () => getJson<RemoteNote[]>("/api/v1/notes");
+export const saveNotes = (notes: RemoteNote[]) => putJson("/api/v1/notes", notes);
 
 export const getReviews = () => getJson<RemoteReviewItem[]>("/api/v1/reviews");
 export const saveReviews = (reviews: RemoteReviewItem[]) => putJson("/api/v1/reviews", reviews);
