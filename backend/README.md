@@ -26,7 +26,8 @@ For local development, set values in `src/LearnEnglish.Functions/appsettings.Dev
 {
   "AzureBlob": {
     "ConnectionString": "UseDevelopmentStorage=true",
-    "ContainerName": "learn-english-dev"
+    "AppDataContainerName": "learn-english-data",
+    "UserAccountsContainerName": "learn-english-users-accounts"
   },
   "Auth": {
     "JwtSigningKey": "dev-only-change-this-signing-key-to-a-strong-secret",
@@ -44,7 +45,8 @@ For Azure, configure App Settings with `__` separators, for example:
 - `OpenAI__ApiKey`
 - `OpenAI__Model`
 - `AzureBlob__ConnectionString`
-- `AzureBlob__ContainerName`
+- `AzureBlob__AppDataContainerName`
+- `AzureBlob__UserAccountsContainerName`
 - `Auth__JwtSigningKey`
 - `Auth__Issuer`
 - `Auth__Audience`
