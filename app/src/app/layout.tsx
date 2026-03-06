@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AppStoreProvider } from "@/store/AppStoreProvider";
-import { AuthGate } from "@/components/AuthGate";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,7 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${spaceGrotesk.variable} ${fraunces.variable} antialiased`}>
         <AppStoreProvider>
-          <AuthGate>{children}</AuthGate>
+          {children}
           <ServiceWorkerRegister />
         </AppStoreProvider>
       </body>

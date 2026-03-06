@@ -89,11 +89,18 @@ dotnet run
 
 1. User adds a word in `src/app/words/page.tsx` and submits the form.
 2. `addWord` in `src/store/useAppStore.tsx` creates a `Word` + optional `Example`.
-3. The store syncs `AppData` to the authenticated backend account.
+3. The store persists `AppData` to LocalStorage via `src/lib/storage.ts`.
 4. `src/app/practice/page.tsx` reads `data.words`, filters due items with
    `src/lib/spacedRepetition.ts`, and renders the current example.
 5. Rating an example updates its review state and persists the new schedule.
 
+## Roadmap Ideas
+
+- Auth + cloud sync for multi-device learning
+- Gamification: streaks, levels, and achievements
+- Personalized review schedules
+- Azure deployment (Static Web Apps + Azure Functions)
+
 ## Notes
 
-All app data persistence is handled by authenticated backend endpoints (`/api/v1/auth/*`, `/api/v1/settings`, `/api/v1/words`, `/api/v1/notes`, `/api/v1/reviews`) backed by Azure Blob Storage.
+All app data persistence is handled by the backend endpoints (`/api/v1/settings`, `/api/v1/words`, `/api/v1/notes`, `/api/v1/reviews`) backed by Azure Blob Storage.

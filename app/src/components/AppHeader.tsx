@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/Button";
 import { useTranslations } from "@/store/useTranslations";
-import { useAppStoreContext } from "@/store/AppStoreProvider";
 import { LanguageSelect } from "@/components/LanguageSelect";
 
 export const AppHeader = () => {
-  const { authUser, logoutUser } = useAppStoreContext();
   const { t } = useTranslations();
 
   return (
@@ -32,14 +29,6 @@ export const AppHeader = () => {
           {t("navSettings")}
         </Link>
         <LanguageSelect compact />
-        {authUser?.email && (
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
-            {authUser.email}
-          </span>
-        )}
-        <Button variant="ghost" className="px-3 py-1 text-xs" onClick={() => void logoutUser()}>
-          Logout
-        </Button>
       </nav>
     </header>
   );

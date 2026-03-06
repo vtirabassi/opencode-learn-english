@@ -3,9 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { defaultAppData, defaultSettings } from "@/lib/storage";
 import { mergeWordsWithReviews, splitWordsAndReviews } from "@/lib/userDataMapper";
-import { getCurrentUser, login, logout, register, type AuthUser } from "@/services/authApi";
-import { UnauthorizedApiError } from "@/services/apiClient";
-import { getAccessToken } from "@/services/authSession";
 import {
   getNotes,
   getReviews,
@@ -61,58 +58,32 @@ const buildExample = (input: NewExampleInput): Example => {
 export const useAppStore = () => {
   const [data, setData] = useState<AppData>(defaultAppData);
   const [ready, setReady] = useState(false);
-  const [authStatus, setAuthStatus] = useState<
-    "loading" | "authenticated" | "unauthenticated"
-  >("loading");
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-
-  const loadRemoteData = useCallback(async () => {
-    const [settings, words, note, reviews] = await Promise.all([
-      getSettings(),
-      getWords(),
-      getNote(),
-      getReviews(),
-    ]);
-
-    setData({
-      settings: {
-        ...defaultSettings,
-        ...settings,
-      },
-      words: mergeWordsWithReviews(words, reviews),
-      note,
-    });
-  }, []);
 
   useEffect(() => {
     let mounted = true;
-
-    const bootstrap = async () => {
+    const loadRemoteData = async () => {
       try {
-        const token = getAccessToken();
-        if (!token) {
-          if (mounted) {
-            setAuthStatus("unauthenticated");
-            setReady(true);
-          }
-          return;
-        }
+        const [settings, words, notes, reviews] = await Promise.all([
+          getSettings(),
+          getWords(),
+          getNotes(),
+          getReviews(),
+        ]);
 
-        const user = await getCurrentUser();
         if (!mounted) return;
 
-        setAuthUser(user);
-        setAuthStatus("authenticated");
-        await loadRemoteData();
+        setData({
+          settings: {
+            ...defaultSettings,
+            ...settings,
+          },
+          words: mergeWordsWithReviews(words, reviews),
+          notes: Array.isArray(notes) ? notes : [],
+        });
       } catch (error) {
-        if (!mounted) return;
-
-        if (error instanceof UnauthorizedApiError) {
-          setData(defaultAppData);
-          setAuthUser(null);
-          setAuthStatus("unauthenticated");
-        } else {
+        if (mounted) {
           console.error("Failed to load remote user data.", error);
+          setData(defaultAppData);
         }
       } finally {
         if (mounted) {
@@ -121,15 +92,15 @@ export const useAppStore = () => {
       }
     };
 
-    void bootstrap();
+    loadRemoteData();
 
     return () => {
       mounted = false;
     };
-  }, [loadRemoteData]);
+  }, []);
 
   useEffect(() => {
-    if (!ready || authStatus !== "authenticated") return;
+    if (!ready) return;
 
     const syncRemoteData = async () => {
       try {
@@ -140,18 +111,12 @@ export const useAppStore = () => {
           saveReviews(split.reviews),
         ]);
       } catch (error) {
-        if (error instanceof UnauthorizedApiError) {
-          setAuthUser(null);
-          setAuthStatus("unauthenticated");
-          setData(defaultAppData);
-          return;
-        }
         console.error("Failed to persist remote user data.", error);
       }
     };
 
     void syncRemoteData();
-  }, [authStatus, data, ready]);
+  }, [data, ready]);
 
   const setSettings = useCallback((next: Settings) => {
     setData((prev) => ({ ...prev, settings: next }));
@@ -282,54 +247,14 @@ export const useAppStore = () => {
     [],
   );
 
-  const updateStudyNote = useCallback((next: Pick<StudyNote, "title" | "markdown">) => {
-    setData((prev) => ({
-      ...prev,
-      note: {
-        ...prev.note,
-        title: next.title,
-        markdown: next.markdown,
-        updatedAt: new Date().toISOString(),
-      },
-    }));
-  }, []);
-
-  const registerWithEmail = useCallback(
-    async (email: string, password: string) => {
-      const user = await register({ email, password });
-      setAuthUser(user);
-      setAuthStatus("authenticated");
-      await loadRemoteData();
-      setReady(true);
-    },
-    [loadRemoteData],
-  );
-
-  const loginWithEmail = useCallback(
-    async (email: string, password: string) => {
-      const user = await login({ email, password });
-      setAuthUser(user);
-      setAuthStatus("authenticated");
-      await loadRemoteData();
-      setReady(true);
-    },
-    [loadRemoteData],
-  );
-
-  const logoutUser = useCallback(async () => {
-    await logout();
-    setAuthUser(null);
-    setAuthStatus("unauthenticated");
-    setData(defaultAppData);
-    setReady(true);
+  const setNotes = useCallback((notes: AppData["notes"]) => {
+    setData((prev) => ({ ...prev, notes }));
   }, []);
 
   const value = useMemo(
     () => ({
       data,
       ready,
-      authStatus,
-      authUser,
       setLocale,
       setDailyGoalMinutes,
       setShowTranslationsByDefault,
@@ -337,17 +262,12 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
-      loginWithEmail,
-      registerWithEmail,
-      logoutUser,
+      setNotes,
       reset: () => setData({ ...defaultAppData, settings: defaultSettings }),
     }),
     [
       data,
       ready,
-      authStatus,
-      authUser,
       setLocale,
       setDailyGoalMinutes,
       setShowTranslationsByDefault,
@@ -355,10 +275,7 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
-      loginWithEmail,
-      registerWithEmail,
-      logoutUser,
+      setNotes,
     ],
   );
 

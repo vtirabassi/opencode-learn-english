@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Azure.Core.Serialization;
 using LearnEnglish.Application.Extensions;
+using LearnEnglish.Functions.Options;
 using LearnEnglish.Infrastructure.Extensions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,9 @@ var host = new HostBuilder()
     {
         services.AddApplication();
         services.AddInfrastructure(context.Configuration);
+        services.Configure<AppDataOptions>(
+            context.Configuration.GetSection(AppDataOptions.SectionName)
+        );
 
         services.Configure<WorkerOptions>(options =>
         {

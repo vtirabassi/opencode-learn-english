@@ -55,16 +55,13 @@ internal sealed class AzureBlobUserDataStore(IOptions<AzureBlobOptions> options)
             throw new InvalidOperationException("AzureBlob:ConnectionString is required.");
         }
 
-        var containerName = _options.ResolveAppDataContainerName();
-        if (string.IsNullOrWhiteSpace(containerName))
+        if (string.IsNullOrWhiteSpace(_options.ContainerName))
         {
-            throw new InvalidOperationException(
-                "AzureBlob:AppDataContainerName (or AzureBlob:ContainerName) is required."
-            );
+            throw new InvalidOperationException("AzureBlob:ContainerName is required.");
         }
 
         var serviceClient = new BlobServiceClient(_options.ConnectionString);
-        var containerClient = serviceClient.GetBlobContainerClient(containerName);
+        var containerClient = serviceClient.GetBlobContainerClient(_options.ContainerName);
         await containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         return containerClient;
     }

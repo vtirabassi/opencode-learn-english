@@ -1,5 +1,5 @@
+import { buildApiUrl } from "@/lib/apiBaseUrl";
 import type { ExampleTone } from "@/lib/types";
-import { requestJson } from "@/services/apiClient";
 
 type GenerateExamplesInput = {
   word: string;
@@ -19,9 +19,17 @@ type GenerateExamplesResponse = {
 };
 
 export const generateExamples = async (input: GenerateExamplesInput) => {
-  const payload = await requestJson<GenerateExamplesResponse>("/api/v1/examples/generate", {
+  const response = await fetch(buildApiUrl("/api/v1/examples/generate"), {
     method: "POST",
-    body: input,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
   });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Failed to generate examples.");
+  }
+
+  const payload = (await response.json()) as GenerateExamplesResponse;
   return payload.examples ?? [];
 };
