@@ -28,7 +28,7 @@ public sealed class NotesFunctions(
                 authService,
                 cancellationToken
             );
-            var note = await userDataService.GetNoteAsync(
+            var notes = await userDataService.GetNotesAsync(
                 user.UserId,
                 cancellationToken
             );
@@ -59,8 +59,11 @@ public sealed class NotesFunctions(
                 authService,
                 cancellationToken
             );
-            var payload = await FunctionHttp.ReadJsonAsync<StudyNoteData>(request, cancellationToken);
-            await userDataService.SaveNoteAsync(
+            var payload = await FunctionHttp.ReadJsonAsync<List<StudyNoteData>>(
+                request,
+                cancellationToken
+            );
+            await userDataService.SaveNotesAsync(
                 user.UserId,
                 payload,
                 cancellationToken
