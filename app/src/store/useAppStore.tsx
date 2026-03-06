@@ -7,11 +7,10 @@ import { getCurrentUser, login, logout, register, type AuthUser } from "@/servic
 import { UnauthorizedApiError } from "@/services/apiClient";
 import { getAccessToken } from "@/services/authSession";
 import {
-  getNote,
+  getNotes,
   getReviews,
   getSettings,
   getWords,
-  saveNote,
   saveReviews,
   saveSettings,
   saveWords,
@@ -25,7 +24,6 @@ import type {
   Locale,
   ReviewRating,
   Settings,
-  StudyNote,
   Word,
 } from "@/lib/types";
 
@@ -43,7 +41,7 @@ type NewExampleInput = {
   source: ExampleSource;
 };
 
-const createId = () =>
+export const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2, 11);
@@ -139,7 +137,6 @@ export const useAppStore = () => {
         await Promise.all([
           saveSettings(data.settings),
           saveWords(split.words),
-          saveNote(data.note),
           saveReviews(split.reviews),
         ]);
       } catch (error) {

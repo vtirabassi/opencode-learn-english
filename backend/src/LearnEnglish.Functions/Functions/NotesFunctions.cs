@@ -32,7 +32,7 @@ public sealed class NotesFunctions(
                 user.UserId,
                 cancellationToken
             );
-            return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, note, cancellationToken);
+            return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, notes, cancellationToken);
         }
         catch (Exception exception)
         {
