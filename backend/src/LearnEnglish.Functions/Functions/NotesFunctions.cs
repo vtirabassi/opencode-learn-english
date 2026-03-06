@@ -1,17 +1,16 @@
 using System.Net;
+using LearnEnglish.Application.Auth;
 using LearnEnglish.Application.UserData;
-using LearnEnglish.Functions.Options;
 using LearnEnglish.Functions.Shared;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LearnEnglish.Functions.Functions;
 
 public sealed class NotesFunctions(
     IUserDataService userDataService,
-    IOptions<AppDataOptions> appDataOptions,
+    IAuthService authService,
     ILogger<NotesFunctions> logger
 )
 {
@@ -24,8 +23,13 @@ public sealed class NotesFunctions(
     {
         try
         {
+            var user = await FunctionHttp.RequireAuthenticatedUserAsync(
+                request,
+                authService,
+                cancellationToken
+            );
             var note = await userDataService.GetNoteAsync(
-                FunctionHttp.ResolveUserId(appDataOptions),
+                user.UserId,
                 cancellationToken
             );
             return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, note, cancellationToken);
@@ -50,9 +54,14 @@ public sealed class NotesFunctions(
     {
         try
         {
+            var user = await FunctionHttp.RequireAuthenticatedUserAsync(
+                request,
+                authService,
+                cancellationToken
+            );
             var payload = await FunctionHttp.ReadJsonAsync<StudyNoteData>(request, cancellationToken);
             await userDataService.SaveNoteAsync(
-                FunctionHttp.ResolveUserId(appDataOptions),
+                user.UserId,
                 payload,
                 cancellationToken
             );

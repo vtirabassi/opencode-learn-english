@@ -1,17 +1,16 @@
 using System.Net;
+using LearnEnglish.Application.Auth;
 using LearnEnglish.Application.UserData;
-using LearnEnglish.Functions.Options;
 using LearnEnglish.Functions.Shared;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LearnEnglish.Functions.Functions;
 
 public sealed class ReviewsFunctions(
     IUserDataService userDataService,
-    IOptions<AppDataOptions> appDataOptions,
+    IAuthService authService,
     ILogger<ReviewsFunctions> logger
 )
 {
@@ -24,8 +23,13 @@ public sealed class ReviewsFunctions(
     {
         try
         {
+            var user = await FunctionHttp.RequireAuthenticatedUserAsync(
+                request,
+                authService,
+                cancellationToken
+            );
             var reviews = await userDataService.GetReviewsAsync(
-                FunctionHttp.ResolveUserId(appDataOptions),
+                user.UserId,
                 cancellationToken
             );
             return await FunctionHttp.JsonAsync(request, HttpStatusCode.OK, reviews, cancellationToken);
@@ -50,12 +54,17 @@ public sealed class ReviewsFunctions(
     {
         try
         {
+            var user = await FunctionHttp.RequireAuthenticatedUserAsync(
+                request,
+                authService,
+                cancellationToken
+            );
             var payload = await FunctionHttp.ReadJsonAsync<List<ReviewItemData>>(
                 request,
                 cancellationToken
             );
             await userDataService.SaveReviewsAsync(
-                FunctionHttp.ResolveUserId(appDataOptions),
+                user.UserId,
                 payload,
                 cancellationToken
             );
