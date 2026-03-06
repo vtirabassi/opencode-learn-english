@@ -24,6 +24,7 @@ import type {
   Locale,
   ReviewRating,
   Settings,
+  StudyNote,
   Word,
 } from "@/lib/types";
 
@@ -67,10 +68,10 @@ export const useAppStore = () => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   const loadRemoteData = useCallback(async () => {
-    const [settings, words, note, reviews] = await Promise.all([
+    const [settings, words, notes, reviews] = await Promise.all([
       getSettings(),
       getWords(),
-      getNote(),
+      getNotes(),
       getReviews(),
     ]);
 
@@ -80,7 +81,7 @@ export const useAppStore = () => {
         ...settings,
       },
       words: mergeWordsWithReviews(words, reviews),
-      note,
+      notes,
     });
   }, []);
 
@@ -282,15 +283,10 @@ export const useAppStore = () => {
     [],
   );
 
-  const updateStudyNote = useCallback((next: Pick<StudyNote, "title" | "markdown">) => {
+  const setNotes = useCallback((notes: StudyNote[]) => {
     setData((prev) => ({
       ...prev,
-      note: {
-        ...prev.note,
-        title: next.title,
-        markdown: next.markdown,
-        updatedAt: new Date().toISOString(),
-      },
+      notes,
     }));
   }, []);
 
@@ -337,7 +333,7 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
+      setNotes,
       loginWithEmail,
       registerWithEmail,
       logoutUser,
@@ -355,7 +351,7 @@ export const useAppStore = () => {
       addExampleToWord,
       updateWord,
       updateExampleReview,
-      updateStudyNote,
+      setNotes,
       loginWithEmail,
       registerWithEmail,
       logoutUser,
