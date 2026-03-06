@@ -4,34 +4,12 @@ import type {
   RemoteSettings,
   RemoteWord,
 } from "@/lib/userDataContracts";
-import { buildApiUrl } from "@/lib/apiBaseUrl";
+import { requestJson, requestNoContent } from "@/services/apiClient";
 
-const getJson = async <T>(path: string): Promise<T> => {
-  const response = await fetch(buildApiUrl(path), {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
+const getJson = <T>(path: string): Promise<T> => requestJson<T>(path, { method: "GET" });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Failed to fetch ${path}`);
-  }
-
-  return (await response.json()) as T;
-};
-
-const putJson = async <T>(path: string, payload: T) => {
-  const response = await fetch(buildApiUrl(path), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Failed to save ${path}`);
-  }
-};
+const putJson = <T>(path: string, payload: T) =>
+  requestNoContent(path, { method: "PUT", body: payload });
 
 export const getSettings = () => getJson<RemoteSettings>("/api/v1/settings");
 export const saveSettings = (settings: RemoteSettings) => putJson("/api/v1/settings", settings);

@@ -1,6 +1,7 @@
 using System.Net;
 using LearnEnglish.Application;
 using LearnEnglish.Application.Abstractions;
+using LearnEnglish.Application.Auth;
 using LearnEnglish.Functions.Contracts;
 using LearnEnglish.Functions.Shared;
 using Microsoft.Azure.Functions.Worker;
@@ -11,6 +12,7 @@ namespace LearnEnglish.Functions.Functions;
 
 public sealed class ExamplesFunctions(
     IExampleGenerationService exampleGenerationService,
+    IAuthService authService,
     ILogger<ExamplesFunctions> logger
 )
 {
@@ -23,6 +25,11 @@ public sealed class ExamplesFunctions(
     {
         try
         {
+            _ = await FunctionHttp.RequireAuthenticatedUserAsync(
+                request,
+                authService,
+                cancellationToken
+            );
             var payload = await FunctionHttp.ReadJsonAsync<GenerateExamplesRequest>(
                 request,
                 cancellationToken

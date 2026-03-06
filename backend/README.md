@@ -26,10 +26,14 @@ For local development, set values in `src/LearnEnglish.Functions/appsettings.Dev
 {
   "AzureBlob": {
     "ConnectionString": "UseDevelopmentStorage=true",
-    "ContainerName": "learn-english-dev"
+    "AppDataContainerName": "learn-english-data",
+    "UserAccountsContainerName": "learn-english-users-accounts"
   },
-  "AppData": {
-    "DefaultUserId": "default-user"
+  "Auth": {
+    "JwtSigningKey": "dev-only-change-this-signing-key-to-a-strong-secret",
+    "Issuer": "LearnEnglish",
+    "Audience": "LearnEnglish.Client",
+    "AccessTokenMinutes": 720
   },
   "OpenAI": {
     "ApiKey": "your_key_here"
@@ -41,11 +45,19 @@ For Azure, configure App Settings with `__` separators, for example:
 - `OpenAI__ApiKey`
 - `OpenAI__Model`
 - `AzureBlob__ConnectionString`
-- `AzureBlob__ContainerName`
-- `AppData__DefaultUserId`
+- `AzureBlob__AppDataContainerName`
+- `AzureBlob__UserAccountsContainerName`
+- `Auth__JwtSigningKey`
+- `Auth__Issuer`
+- `Auth__Audience`
+- `Auth__AccessTokenMinutes`
 
 ## App Data Endpoints
 
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/me`
 - `POST /api/v1/examples/generate`
 - `GET/PUT /api/v1/settings`
 - `GET/PUT /api/v1/words`

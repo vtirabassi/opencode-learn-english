@@ -1,9 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using LearnEnglish.Functions.Options;
+using LearnEnglish.Application.Auth;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LearnEnglish.Functions.Shared;
 
@@ -15,11 +14,36 @@ internal static class FunctionHttp
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public static string ResolveUserId(IOptions<AppDataOptions> appDataOptions)
+    public static async Task<AuthUser> RequireAuthenticatedUserAsync(
+        HttpRequestData request,
+        IAuthService authService,
+        CancellationToken cancellationToken
+    )
     {
-        return string.IsNullOrWhiteSpace(appDataOptions.Value.DefaultUserId)
-            ? "default-user"
-            : appDataOptions.Value.DefaultUserId.Trim();
+        if (!request.Headers.TryGetValues("Authorization", out var values))
+        {
+            throw new UnauthorizedAccessException("Authentication is required.");
+        }
+
+        var authorization = values.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(authorization))
+        {
+            throw new UnauthorizedAccessException("Authentication is required.");
+        }
+
+        const string bearerPrefix = "Bearer ";
+        if (!authorization.StartsWith(bearerPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UnauthorizedAccessException("Authentication is required.");
+        }
+
+        var token = authorization[bearerPrefix.Length..].Trim();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new UnauthorizedAccessException("Authentication is required.");
+        }
+
+        return await authService.GetCurrentUserAsync(token, cancellationToken);
     }
 
     public static async Task<T> ReadJsonAsync<T>(HttpRequestData request, CancellationToken cancellationToken)
@@ -79,6 +103,12 @@ internal static class FunctionHttp
                 request,
                 HttpStatusCode.BadRequest,
                 argEx.Message,
+                cancellationToken
+            ),
+            UnauthorizedAccessException unauthorizedAccessException => ProblemAsync(
+                request,
+                HttpStatusCode.Unauthorized,
+                unauthorizedAccessException.Message,
                 cancellationToken
             ),
             HttpRequestException httpRequestException => HandleUpstreamAsync(
